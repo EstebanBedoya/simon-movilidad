@@ -1,0 +1,27 @@
+{
+  "name": "simon-movilidad",
+  "private": true,
+  "packageManager": "pnpm@10.26.2",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "test": "turbo test"
+  },
+  "devDependencies": {
+    "turbo": "latest",
+    "typescript": "^5.8.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "react-native": "0.81.5",
+      "@types/react": "^19.2.0"
+    },
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "bcrypt",
+      "sharp",
+      "unrs-resolver"
+    ]
+  }
+}
