@@ -1,0 +1,95 @@
+@import "tailwindcss";
+@import "maplibre-gl/dist/maplibre-gl.css";
+
+/* ─── Simon Movilidad — Design Tokens ─────────────────────────────────────── */
+:root {
+  /* Surfaces */
+  --bg: #050505;
+  --surface-1: #0c0c0d;
+  --surface-2: #131315;
+  --surface-3: #1a1a1d;
+
+  /* Borders */
+  --hairline: rgba(255, 255, 255, 0.06);
+  --hairline-strong: rgba(255, 255, 255, 0.12);
+
+  /* Text */
+  --foreground: #f5f5f5;
+  --foreground-muted: rgba(245, 245, 245, 0.55);
+  --foreground-dim: rgba(245, 245, 245, 0.35);
+
+  /* Brand accent */
+  --accent: #d4ff3d;
+  --accent-soft: rgba(212, 255, 61, 0.12);
+  --accent-line: rgba(212, 255, 61, 0.32);
+
+  /* Semantic */
+  --danger: #ff4d5e;
+  --danger-soft: rgba(255, 77, 94, 0.12);
+  --warning: #ffb547;
+  --warning-soft: rgba(255, 181, 71, 0.12);
+  --success: #2bd67b;
+  --info: #5aa9ff;
+}
+
+/* ─── Tailwind v4 Theme ────────────────────────────────────────────────────── */
+@theme inline {
+  /* Colors → bg-*, text-*, border-* utilities */
+  --color-bg:               var(--bg);
+  --color-surface-1:        var(--surface-1);
+  --color-surface-2:        var(--surface-2);
+  --color-surface-3:        var(--surface-3);
+  --color-hairline:         var(--hairline);
+  --color-hairline-strong:  var(--hairline-strong);
+  --color-foreground:       var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-foreground-dim:   var(--foreground-dim);
+  --color-accent:           var(--accent);
+  --color-accent-soft:      var(--accent-soft);
+  --color-accent-line:      var(--accent-line);
+  --color-danger:           var(--danger);
+  --color-danger-soft:      var(--danger-soft);
+  --color-warning:          var(--warning);
+  --color-warning-soft:     var(--warning-soft);
+  --color-success:          var(--success);
+  --color-info:             var(--info);
+
+  /* Typography */
+  --font-sans: var(--font-geist-sans), "Inter", system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), "JetBrains Mono", ui-monospace, Menlo, monospace;
+
+  /* Border radius */
+  --radius-sm:      6px;
+  --radius-DEFAULT: 10px;
+  --radius-lg:      14px;
+  --radius-full:    9999px;
+}
+
+/* ─── Base ─────────────────────────────────────────────────────────────────── */
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--foreground);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+/* ─── Scrollbars ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar         { width: 10px; height: 10px; }
+::-webkit-scrollbar-track   { background: transparent; }
+::-webkit-scrollbar-thumb   { background: rgba(255,255,255,0.06); border-radius: 9999px; border: 2px solid var(--bg); }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.12); }
+
+/* ─── Animations ───────────────────────────────────────────────────────────── */
+@keyframes pulse-ring {
+  0%   { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+@keyframes pin-alert {
+  0%   { box-shadow: 0 0 0 4px rgba(255,77,94,0.4),  0 6px 20px rgba(0,0,0,0.5); }
+  70%  { box-shadow: 0 0 0 14px rgba(255,77,94,0),   0 6px 20px rgba(0,0,0,0.5); }
+  100% { box-shadow: 0 0 0 4px rgba(255,77,94,0),    0 6px 20px rgba(0,0,0,0.5); }
+}
