@@ -1,5 +1,6 @@
 "use client";
-import { Bell, HelpCircle } from "lucide-react";
+import { Bell, HelpCircle, LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { NavBrand } from "@/components/molecules/NavBrand";
 import { SearchBox } from "@/components/molecules/SearchBox";
 import { RoleBadge } from "@/components/molecules/RoleBadge";
@@ -12,8 +13,15 @@ import { useConnectivityStore } from "@/stores/connectivity.store";
 
 export function Navbar() {
   const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
   const unresolvedCount = useAlertsStore((s) => s.unresolvedCount);
   const { isOnline, wsStatus } = useConnectivityStore();
+  const router = useRouter();
+
+  function handleLogout() {
+    logout();
+    router.replace("/login");
+  }
 
   const initials = user?.email
     ? user.email.slice(0, 2).toUpperCase()
@@ -63,6 +71,10 @@ export function Navbar() {
           sub="Operaciones"
           initials={initials}
         />
+
+        <Button variant="icon" title="Sign out" onClick={handleLogout}>
+          <LogOut size={15} />
+        </Button>
       </div>
     </header>
   );
