@@ -15,8 +15,7 @@ interface VehicleLocationEvent {
 export function subscribeTelemetry(onData: (telemetry: Telemetry & { vehicleId: string }) => void): () => void {
   const socket = getSocket('/telemetry')
 
-  socket.off('vehicle:location')
-  socket.on('vehicle:location', (data: VehicleLocationEvent) => {
+  function handler(data: VehicleLocationEvent) {
     onData({
       vehicle_id: data.vehicleId,
       lat: data.lat,
@@ -27,9 +26,11 @@ export function subscribeTelemetry(onData: (telemetry: Telemetry & { vehicleId: 
       timestamp: data.timestamp,
       vehicleId: data.vehicleId,
     })
-  })
+  }
+
+  socket.on('vehicle:location', handler)
 
   return () => {
-    socket.off('vehicle:location')
+    socket.off('vehicle:location', handler)
   }
 }
