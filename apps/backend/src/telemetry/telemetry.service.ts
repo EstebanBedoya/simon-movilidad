@@ -31,7 +31,12 @@ export class TelemetryService {
     });
     await this.telemetry.save(row);
 
-    const alert_generated = await this.evaluateFuel(vehicle, row);
+    const [fuelAlert, tempAlert, speedAlert] = await Promise.all([
+      this.evaluateFuel(vehicle, row),
+      this.evaluateTemperature(vehicle, row),
+      this.evaluateSpeeding(vehicle, row),
+    ]);
+    const alert_generated = fuelAlert || tempAlert || speedAlert;
 
     this.gateway.emitLocation({
       vehicleId: vehicle.id,
@@ -103,6 +108,56 @@ export class TelemetryService {
       `Combustible bajo: autonomía estimada de ${minutes} minutos`,
     );
     return true;
+  }
+
+  private async evaluateTemperature(
+    vehicle: Vehicle,
+    current: Telemetry,
+  ): Promise<boolean> {
+    if (current.temperature === null || Number(current.temperature) <= 100)
+      return false;
+    const existing = await this.alertsService.findUnresolved(
+      vehicle.id,
+      'high_temperature',
+    );
+    if (existing) return false;
+    const temp = Number(current.temperature).toFixed(1);
+    await this.alertsService.createAlert(
+      vehicle.id,
+      vehicle.name,
+      'high_temperature',
+      `Temperatura crítica del motor: ${temp}°C`,
+    );
+    return true;
+  }
+
+  private async evaluateSpeeding(
+    vehicle: Vehicle,
+    current: Telemetry,
+  ): Promise<boolean> {
+    if (current.speed === null || Number(current.speed) <= 110) return false;
+    const existing = await this.alertsService.findUnresolved(
+      vehicle.id,
+      'speeding',
+    );
+    if (existing) return false;
+    const speed = Number(current.speed).toFixed(1);
+    await this.alertsService.createAlert(
+      vehicle.id,
+      vehicle.name,
+      'speeding',
+      `Exceso de velocidad: ${speed} km/h`,
+    );
+    return true;
+  }
+
+  async findLatestTimestamp(vehicleId: string): Promise<Date | null> {
+    const row = await this.telemetry.findOne({
+      where: { vehicle_id: vehicleId },
+      order: { timestamp: 'DESC' },
+      select: { timestamp: true },
+    });
+    return row?.timestamp ?? null;
   }
 
   async findByVehicle(

@@ -2,6 +2,7 @@ import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { VehiclesService } from '../vehicles/vehicles.service';
 import { TelemetryService } from '../telemetry/telemetry.service';
+import { AlertsService } from '../alerts/alerts.service';
 import { Vehicle } from '../vehicles/entities/vehicle.entity';
 import { CITIES } from './cities.config';
 
@@ -17,25 +18,57 @@ export class SimulationService implements OnModuleInit, OnModuleDestroy {
   private intervalMs: number;
   private timers = new Map<string, ReturnType<typeof setInterval>>();
   private states = new Map<string, VehicleState>();
+  private offlineTimer: ReturnType<typeof setInterval> | null = null;
+
+  private static readonly OFFLINE_CHECK_MS = 2 * 60 * 1000;
+  private static readonly OFFLINE_THRESHOLD_MS = 10 * 60 * 1000;
 
   constructor(
     private config: ConfigService,
     private vehiclesService: VehiclesService,
     private telemetryService: TelemetryService,
+    private alertsService: AlertsService,
   ) {
     this.enabled = config.get<string>('SIMULATE') === 'true';
     this.intervalMs = Number(config.get('SIMULATE_INTERVAL_MS') ?? 3000);
   }
 
   async onModuleInit() {
-    if (!this.enabled) return;
-    const vehicles = await this.vehiclesService.findActiveVehicles();
-    for (const v of vehicles) this.startVehicle(v);
+    if (this.enabled) {
+      const vehicles = await this.vehiclesService.findActiveVehicles();
+      for (const v of vehicles) this.startVehicle(v);
+    }
+    this.offlineTimer = setInterval(
+      () => void this.checkOfflineVehicles(),
+      SimulationService.OFFLINE_CHECK_MS,
+    );
   }
 
   onModuleDestroy() {
     this.timers.forEach((t) => clearInterval(t));
     this.timers.clear();
+    if (this.offlineTimer) clearInterval(this.offlineTimer);
+  }
+
+  private async checkOfflineVehicles() {
+    const vehicles = await this.vehiclesService.findActiveVehicles();
+    const now = Date.now();
+    await Promise.all(
+      vehicles.map(async (v) => {
+        const last = await this.telemetryService.findLatestTimestamp(v.id);
+        if (!last) return;
+        const age = now - new Date(last).getTime();
+        if (age < SimulationService.OFFLINE_THRESHOLD_MS) return;
+        const existing = await this.alertsService.findUnresolved(v.id, 'offline');
+        if (existing) return;
+        await this.alertsService.createAlert(
+          v.id,
+          v.name,
+          'offline',
+          `Vehículo sin señal por más de ${Math.round(age / 60_000)} minutos`,
+        );
+      }),
+    );
   }
 
   startVehicle(vehicle: Vehicle) {
@@ -74,7 +107,7 @@ export class SimulationService implements OnModuleInit, OnModuleDestroy {
         lng: state.lng,
         speed: 20 + Math.random() * 100,
         fuel_level: state.fuel,
-        temperature: 75 + Math.random() * 20,
+        temperature: 75 + Math.random() * 40,
       });
     } catch {
       // vehicle may have been deleted

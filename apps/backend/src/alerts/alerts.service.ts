@@ -85,9 +85,16 @@ export class AlertsService {
     return alert;
   }
 
-  async findUnresolvedLowFuel(vehicleId: string): Promise<Alert | null> {
+  async findUnresolved(
+    vehicleId: string,
+    type: AlertType,
+  ): Promise<Alert | null> {
     return this.alerts.findOne({
-      where: { vehicle_id: vehicleId, type: 'low_fuel', resolved: false },
+      where: { vehicle_id: vehicleId, type, resolved: false },
     });
+  }
+
+  async findUnresolvedLowFuel(vehicleId: string): Promise<Alert | null> {
+    return this.findUnresolved(vehicleId, 'low_fuel');
   }
 }
