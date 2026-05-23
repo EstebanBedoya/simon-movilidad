@@ -1,20 +1,19 @@
 "use client";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Map, AlertTriangle, BarChart2, Settings, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, Map, AlertTriangle, BarChart2, type LucideIcon } from "lucide-react";
 import { NavItem } from "@/components/molecules/NavItem";
 import { ConnectionLine } from "@/components/molecules/ConnectionLine";
 import { useAuthStore } from "@/stores/auth.store";
 import { useAlertsStore } from "@/stores/alerts.store";
 import { useConnectivityStore } from "@/stores/connectivity.store";
 
-type NavId = "dashboard" | "vehicles" | "alerts" | "reports" | "settings";
+type NavId = "dashboard" | "vehicles" | "alerts" | "reports";
 
 const navItems: { id: NavId; label: string; icon: LucideIcon; href: string }[] = [
-  { id: "dashboard", label: "Dashboard",     icon: Map,             href: "/dashboard" },
-  { id: "vehicles",  label: "Vehículos",      icon: LayoutDashboard, href: "/vehicles" },
-  { id: "alerts",    label: "Alertas",        icon: AlertTriangle,   href: "/alerts" },
-  { id: "reports",   label: "Reportes",       icon: BarChart2,       href: "/reports" },
-  { id: "settings",  label: "Configuración",  icon: Settings,        href: "/settings" },
+  { id: "dashboard", label: "Dashboard", icon: Map,             href: "/dashboard" },
+  { id: "vehicles",  label: "Vehículos", icon: LayoutDashboard, href: "/vehicles" },
+  { id: "alerts",    label: "Alertas",   icon: AlertTriangle,   href: "/alerts" },
+  { id: "reports",   label: "Reportes",  icon: BarChart2,       href: "/reports" },
 ];
 
 export function Sidebar() {

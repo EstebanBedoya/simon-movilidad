@@ -4,7 +4,15 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
   plugins: [tsconfigPaths(), react()],
+  resolve: {
+    dedupe: ['react', 'react-dom'],
+  },
   test: {
+    server: {
+      deps: {
+        inline: ['lucide-react'],
+      },
+    },
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
