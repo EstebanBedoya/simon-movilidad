@@ -58,7 +58,7 @@ export default function AlertsPage() {
             onClick={() => setStatusFilter(s)}
             className={`px-3 py-1 rounded-full text-xs border transition-colors ${
               statusFilter === s
-                ? 'bg-accent text-white border-accent'
+                ? 'bg-accent text-bg border-accent font-semibold'
                 : 'bg-surface-1 text-foreground-muted border-hairline hover:border-hairline-strong'
             }`}
           >
@@ -72,7 +72,7 @@ export default function AlertsPage() {
             onClick={() => setTypeFilter(t)}
             className={`px-3 py-1 rounded-full text-xs border transition-colors ${
               typeFilter === t
-                ? 'bg-accent text-white border-accent'
+                ? 'bg-accent text-bg border-accent font-semibold'
                 : 'bg-surface-1 text-foreground-muted border-hairline hover:border-hairline-strong'
             }`}
           >
