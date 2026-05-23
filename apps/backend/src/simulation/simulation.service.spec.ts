@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { SimulationService } from './simulation.service';
 import { VehiclesService } from '../vehicles/vehicles.service';
 import { TelemetryService } from '../telemetry/telemetry.service';
+import { AlertsService } from '../alerts/alerts.service';
 import { Vehicle } from '../vehicles/entities/vehicle.entity';
 
 const vehicleFactory = (overrides?: Partial<Vehicle>): Vehicle => ({
@@ -23,6 +24,12 @@ const mockVehiclesService = {
 
 const mockTelemetryService = {
   ingest: jest.fn(),
+  findLatestTimestamp: jest.fn(),
+};
+
+const mockAlertsService = {
+  findUnresolved: jest.fn(),
+  createAlert: jest.fn(),
 };
 
 describe('SimulationService', () => {
@@ -42,6 +49,7 @@ describe('SimulationService', () => {
         SimulationService,
         { provide: VehiclesService, useValue: mockVehiclesService },
         { provide: TelemetryService, useValue: mockTelemetryService },
+        { provide: AlertsService, useValue: mockAlertsService },
         { provide: ConfigService, useValue: mockConfig },
       ],
     }).compile();
