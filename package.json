@@ -6,7 +6,9 @@
     "dev": "turbo dev",
     "build": "turbo build",
     "lint": "turbo lint",
-    "test": "turbo test"
+    "test": "turbo test",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "devDependencies": {
     "turbo": "latest",
@@ -14,6 +16,8 @@
   },
   "pnpm": {
     "overrides": {
+      "react": "19.2.4",
+      "react-dom": "19.2.4",
       "react-native": "0.81.5",
       "@types/react": "^19.2.0"
     },
@@ -23,5 +27,11 @@
       "sharp",
       "unrs-resolver"
     ]
+  },
+  "version": "1.0.0",
+  "dependencies": {
+    "expo": "~54.0.34",
+    "react": "19.1.0",
+    "react-native": "0.81.5"
   }
 }
