@@ -12,6 +12,7 @@ import { saveAlerts } from '@/lib/db/alerts.store'
 
 export function useOfflineSync() {
   const isOnline = useConnectivityStore((s) => s.isOnline)
+  const markSynced = useConnectivityStore((s) => s.markSynced)
   const wasOffline = useRef(false)
   const role = useAuthStore((s) => s.user?.role)
 
@@ -24,20 +25,26 @@ export function useOfflineSync() {
     if (!wasOffline.current) return
     wasOffline.current = false
 
-    getVehicles()
-      .then((vehicles) => {
-        useVehiclesStore.getState().setVehicles(vehicles)
-        if (typeof window !== 'undefined') saveVehicles(vehicles).catch(() => {})
-      })
-      .catch(() => {})
+    const tasks: Promise<unknown>[] = [
+      getVehicles()
+        .then((vehicles) => {
+          useVehiclesStore.getState().setVehicles(vehicles)
+          if (typeof window !== 'undefined') saveVehicles(vehicles).catch(() => {})
+        })
+        .catch(() => {}),
+    ]
 
     if (role === 'admin') {
-      getAlerts()
-        .then((alerts) => {
-          useAlertsStore.getState().setAlerts(alerts)
-          if (typeof window !== 'undefined') saveAlerts(alerts).catch(() => {})
-        })
-        .catch(() => {})
+      tasks.push(
+        getAlerts()
+          .then((alerts) => {
+            useAlertsStore.getState().setAlerts(alerts)
+            if (typeof window !== 'undefined') saveAlerts(alerts).catch(() => {})
+          })
+          .catch(() => {})
+      )
     }
-  }, [isOnline, role])
+
+    Promise.allSettled(tasks).then(() => markSynced())
+  }, [isOnline, role, markSynced])
 }
