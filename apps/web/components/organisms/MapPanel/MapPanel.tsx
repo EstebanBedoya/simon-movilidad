@@ -16,7 +16,7 @@ interface MapPanelProps {
 function MapPanelInner({ fleet, selectedId }: MapPanelProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const alerts = useAlertsStore((s) => s.alerts)
-  const { isReady, addVehicleMarker, updateVehicleMarker, flyToVehicle } = useMap(containerRef)
+  const { isReady, addVehicleMarker, updateVehicleMarker, flyToVehicle, setSelectedMarker } = useMap(containerRef)
   const initializedRef = useRef<Set<string>>(new Set())
 
   useEffect(() => {
@@ -40,6 +40,7 @@ function MapPanelInner({ fleet, selectedId }: MapPanelProps) {
     const vehicle = fleet.find((v) => v.id === selectedId)
     const telemetry = vehicle?.latest_telemetry
     if (telemetry) flyToVehicle(telemetry.lng, telemetry.lat)
+    setSelectedMarker(selectedId)
   }, [selectedId, isReady]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (

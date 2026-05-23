@@ -73,18 +73,20 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid min-h-0 min-w-0 overflow-hidden" style={{ gridTemplateColumns: 'minmax(0,1fr) 380px' }}>
-        <div className="grid min-w-0 min-h-0 overflow-hidden" style={{ gridTemplateRows: 'auto 1fr' }}>
+        <div className="flex flex-col min-w-0 min-h-0 overflow-hidden">
           {criticalAlert && (
             <AlertBanner
               alert={criticalAlert}
               onDismiss={() => setDismissedAlertId(criticalAlert.id)}
             />
           )}
-          <MapPanel
-            fleet={vehicles}
-            selectedId={effectiveSelectedId}
-            onSelect={setSelectedId}
-          />
+          <div className="flex-1 min-h-0">
+            <MapPanel
+              fleet={vehicles}
+              selectedId={effectiveSelectedId}
+              onSelect={setSelectedId}
+            />
+          </div>
         </div>
         <RightColumn selected={selected} />
       </div>

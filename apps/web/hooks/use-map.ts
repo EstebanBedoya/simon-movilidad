@@ -22,7 +22,7 @@ function createMarkerEl(status: UIVehicleStatus): HTMLDivElement {
     'box-shadow:0 2px 8px rgba(0,0,0,.45)',
     'cursor:pointer',
     'display:flex', 'align-items:center', 'justify-content:center',
-    'transition:transform 0.15s ease,box-shadow 0.15s ease',
+    'transition:transform 0.15s ease,box-shadow 0.15s ease,outline 0.15s ease',
   ].join(';')
   el.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect x="1" y="7" width="13" height="9" rx="1.5" fill="white"/>
@@ -105,5 +105,22 @@ export function useMap(containerRef: RefObject<HTMLDivElement | null>) {
     mapRef.current?.flyTo({ center: [lng, lat], zoom: 14, duration: 800 })
   }, [])
 
-  return { map: mapRef.current, isReady, addVehicleMarker, updateVehicleMarker, flyToVehicle }
+  const setSelectedMarker = useCallback((vehicleId: string | null) => {
+    markersRef.current.forEach((marker, id) => {
+      const el = marker.getElement()
+      if (id === vehicleId) {
+        el.style.outline = '2.5px solid #d4ff3d'
+        el.style.outlineOffset = '2px'
+        el.style.transform = 'scale(1.15)'
+        el.style.zIndex = '10'
+      } else {
+        el.style.outline = 'none'
+        el.style.outlineOffset = '0'
+        el.style.transform = 'scale(1)'
+        el.style.zIndex = ''
+      }
+    })
+  }, [])
+
+  return { map: mapRef.current, isReady, addVehicleMarker, updateVehicleMarker, flyToVehicle, setSelectedMarker }
 }

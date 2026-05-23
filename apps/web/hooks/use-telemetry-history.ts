@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { getHistory } from '@/lib/api/telemetry.api'
+import { subscribeTelemetry } from '@/lib/socket/telemetry.socket'
 import type { Telemetry, TelemetryPage } from '@/types/telemetry.types'
 
 interface UseTelemetryHistoryResult extends Omit<TelemetryPage, 'data'> {
@@ -22,6 +23,11 @@ export function useTelemetryHistory(
     isLoading: false,
     error: null,
   })
+  const limitRef = useRef(params?.limit ?? 50)
+
+  useEffect(() => {
+    limitRef.current = params?.limit ?? 50
+  }, [params?.limit])
 
   useEffect(() => {
     if (!vehicleId) return
@@ -50,6 +56,19 @@ export function useTelemetryHistory(
       cancelled = true
     }
   }, [vehicleId, params?.page, params?.limit]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!vehicleId) return
+    const unsubscribe = subscribeTelemetry((telemetry) => {
+      if (telemetry.vehicle_id !== vehicleId) return
+      setState((s) => {
+        const max = limitRef.current
+        const next = [...s.data, telemetry]
+        return { ...s, data: next.length > max ? next.slice(next.length - max) : next }
+      })
+    })
+    return unsubscribe
+  }, [vehicleId])
 
   return state
 }

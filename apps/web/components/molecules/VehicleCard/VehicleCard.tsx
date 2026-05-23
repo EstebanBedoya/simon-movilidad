@@ -32,7 +32,7 @@ export function VehicleCard({ vehicle: v, selected, onClick }: VehicleCardProps)
       className={cn(
         "relative flex-shrink-0 w-[232px] flex flex-col gap-[7px] p-[10px_11px] rounded border cursor-pointer transition-all duration-150 overflow-hidden",
         selected
-          ? "bg-surface-2 border-accent-line"
+          ? "bg-surface-2 border-accent"
           : "bg-surface-1 border-hairline hover:bg-surface-2 hover:border-hairline-strong",
         uiStatus === "alert" && !selected && "border-danger/35"
       )}
