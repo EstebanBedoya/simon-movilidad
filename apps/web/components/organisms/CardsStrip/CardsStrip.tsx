@@ -1,5 +1,5 @@
 "use client";
-import { Filter, Download } from "lucide-react";
+import { Download } from "lucide-react";
 import { FilterChip } from "@/components/atoms/FilterChip";
 import { VehicleCard } from "@/components/molecules/VehicleCard";
 import { Button } from "@/components/atoms/Button";
@@ -7,36 +7,37 @@ import { deriveUiStatus } from "@/types/fleet";
 import { useAlertsStore } from "@/stores/alerts.store";
 import type { Vehicle } from "@/types/vehicle.types";
 import type { UIVehicleStatus } from "@/types/fleet";
+import type { FleetFilters } from "@/types/filters";
 
-type FilterId = "all" | UIVehicleStatus;
+const STATUS_CHIPS: { id: "all" | UIVehicleStatus; label: string; dot: string }[] = [
+  { id: "all",     label: "Toda la flota", dot: "transparent" },
+  { id: "active",  label: "En ruta",       dot: "var(--accent)" },
+  { id: "idle",    label: "Detenidos",     dot: "var(--warning)" },
+  { id: "alert",   label: "Con alerta",    dot: "var(--danger)" },
+  { id: "offline", label: "Sin señal",     dot: "rgba(255,255,255,0.25)" },
+];
 
 interface CardsStripProps {
   fleet: Vehicle[];
   selectedId: string;
   onSelect: (id: string) => void;
-  filter: FilterId;
-  onFilter: (f: FilterId) => void;
+  filters: FleetFilters;
+  onFiltersChange: (f: FleetFilters) => void;
 }
 
-export function CardsStrip({ fleet, selectedId, onSelect, filter, onFilter }: CardsStripProps) {
+export function CardsStrip({ fleet, selectedId, onSelect, filters, onFiltersChange }: CardsStripProps) {
   const alerts = useAlertsStore((s) => s.alerts);
-
-  const filters: { id: FilterId; label: string; dot: string }[] = [
-    { id: "all",     label: "Toda la flota", dot: "transparent" },
-    { id: "active",  label: "En ruta",       dot: "var(--accent)" },
-    { id: "idle",    label: "Detenidos",     dot: "var(--warning)" },
-    { id: "alert",   label: "Con alerta",    dot: "var(--danger)" },
-    { id: "offline", label: "Sin señal",     dot: "rgba(255,255,255,0.25)" },
-  ];
 
   const withStatus = fleet.map((v) => ({
     vehicle: v,
     uiStatus: deriveUiStatus(v, alerts.filter((a) => a.vehicle_id === v.id)),
   }));
 
-  const filtered = filter === "all"
-    ? withStatus
-    : withStatus.filter(({ uiStatus }) => uiStatus === filter);
+  const filtered = withStatus.filter(({ vehicle, uiStatus }) => {
+    const statusMatch = filters.status === "all" || uiStatus === filters.status;
+    const cityMatch = filters.cities.length === 0 || filters.cities.includes(vehicle.city);
+    return statusMatch && cityMatch;
+  });
 
   return (
     <section className="bg-bg border-t border-hairline px-4 pt-[10px] pb-3 flex-shrink-0 min-w-0 max-w-full overflow-hidden">
@@ -47,20 +48,17 @@ export function CardsStrip({ fleet, selectedId, onSelect, filter, onFilter }: Ca
         </span>
         <div className="flex-1" />
         <div className="flex gap-1.5 flex-wrap">
-          {filters.map((f) => (
+          {STATUS_CHIPS.map((chip) => (
             <FilterChip
-              key={f.id}
-              label={f.label}
-              dot={f.dot}
-              count={f.id === "all" ? fleet.length : withStatus.filter(({ uiStatus }) => uiStatus === f.id).length}
-              active={filter === f.id}
-              onClick={() => onFilter(f.id)}
+              key={chip.id}
+              label={chip.label}
+              dot={chip.dot}
+              count={chip.id === "all" ? fleet.length : withStatus.filter(({ uiStatus }) => uiStatus === chip.id).length}
+              active={filters.status === chip.id}
+              onClick={() => onFiltersChange({ ...filters, status: chip.id })}
             />
           ))}
         </div>
-        <Button variant="ghost" className="gap-1.5 flex-shrink-0">
-          <Filter size={13} /> Filtros
-        </Button>
         <Button variant="default" className="gap-1.5 flex-shrink-0">
           <Download size={13} /> Exportar
         </Button>
