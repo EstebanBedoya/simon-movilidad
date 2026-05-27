@@ -28,6 +28,7 @@ export function subscribeTelemetry(onData: (telemetry: Telemetry & { vehicleId: 
     })
   }
 
+  socket.off('vehicle:location')
   socket.on('vehicle:location', handler)
 
   return () => {
